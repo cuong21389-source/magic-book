@@ -318,11 +318,10 @@ function resetHeart(){
     drawGuideHeart();
 }
 
-function unlockHeart(){
+function unlockHeart() {
 
-    console.log("Heart Unlock Triggered");
+    console.log("Heart Unlock Success");
 
-    // Set đủ điều kiện như khi vẽ xong chữ N
     MagicLock.progress = MagicLock.requiredProgress;
     MagicLock.isLocked = false;
 
@@ -828,7 +827,9 @@ function unlockHeart(){
 
             // --- MAGIC LOCK UPDATE ---
             // Truyền landmarks mới nhất vào MagicLock
-            // MagicLock.update(latestLandmarks);
+            if (MagicLock.isLocked) {
+                // MagicLock.update(latestLandmarks);
+            }
 
             // --- AMBIENT BOOKS ANIMATION ---
             floatingBooks.forEach((book) => {
