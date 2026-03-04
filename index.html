@@ -369,10 +369,10 @@ function unlockHeart() {
         const BOOK_DIMS = { width: BOOK_WIDTH, height: BOOK_WIDTH * 1.414, depth: 1.5, pageCount: 3, pageThickness: 0.02, gap: 0.15 };
         const COVER_URLS = { front: "bia1.png", back: "bia2.png", spineColor: "#501010" };
 
-        let currentPageIndex = 0;
+
         let scene, camera, renderer, composer, controls;
         let bookWrapper, bookGroup, frontCoverPivot, pagePivots = [];
-        let currentPage = -1; 
+        let currentPage = 0; 
         const raycaster = new THREE.Raycaster(); const mouse = new THREE.Vector2();
         let mainPolaroids = []; let decoyPolaroids = []; let isGalleryOpen = false; let zoomIndex = -1; 
         let sharedDecoyGeo, sharedDecoyMat; let ambientParticles;
