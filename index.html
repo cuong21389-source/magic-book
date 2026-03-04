@@ -830,9 +830,15 @@ function unlockHeart() {
         }
 
         function flipPage() {
-            if (currentPage < BOOK_DIMS.pageCount) currentPage++; else currentPage = -1;
-            if (frontCoverPivot) frontCoverPivot.userData.targetAngle = currentPage >= 0 ? frontCoverPivot.userData.openAngle : 0;
-            pagePivots.forEach((p, i) => { p.targetAngle = currentPage >= (i + 1) ? p.openAngle : 0; });
+
+            if (currentPageIndex >= pagePivots.length) return;
+        
+            const page = pagePivots[currentPageIndex];
+        
+            page.targetAngle = -Math.PI; // lật sang trái
+        
+            currentPageIndex++;
+        
         }
 
         function animate() {
