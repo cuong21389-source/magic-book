@@ -320,11 +320,20 @@ function resetHeart(){
 
 function unlockHeart() {
 
-    console.log("Heart Unlock Success");
+   console.log("Heart Unlock Success");
 
-    MagicLock.progress = MagicLock.requiredProgress;
     MagicLock.isLocked = false;
 
+    // Ẩn overlay khóa
+    const overlay = document.getElementById("lock-overlay");
+    overlay.style.opacity = "0";
+    overlay.style.visibility = "hidden";
+
+    // Xoá canvas vẽ tim
+    heartCanvas.remove();
+
+    // Mở sách
+    flipPage();
 }
         const TRANSFORM_CONFIG = {
             isZoomedIn: false,
@@ -386,7 +395,7 @@ function unlockHeart() {
 
         async function init() {
             setupScene();
-            MagicLock.init(); // Khởi tạo khoá
+
             createAmbientBooks(50); // Tạo sách bay nền
             await setupAI();
             animate();
@@ -508,7 +517,7 @@ function unlockHeart() {
 
         let lastVideoTime = -1;
         function predictWebcam() {
-            if (!handLandmarker || !webcamRunning) return;
+            // if (!handLandmarker || !webcamRunning) return;
             let startTimeMs = performance.now()
             webcamRunning = true;;
             if (video.currentTime !== lastVideoTime) {
