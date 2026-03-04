@@ -508,7 +508,7 @@ function unlockHeart() {
 
         let lastVideoTime = -1;
         function predictWebcam() {
-            if (!handLandmarker || !webcamRunning) return;
+            // if (!handLandmarker || !webcamRunning) return;
             let startTimeMs = performance.now();
             if (video.currentTime !== lastVideoTime) {
                 lastVideoTime = video.currentTime;
