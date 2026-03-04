@@ -167,7 +167,7 @@
     <div id="ui">Love Story Grimoire</div>
 
     <div id="credit">TikTok: binnanee</div>
-
+    window.isLocked = true;
     <script type="module">
         import * as THREE from 'three';
         import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
@@ -809,8 +809,8 @@
         }
 
         function animate() {
-            requestAnimationFrame(animate);
-            predictWebcam(); 
+            // requestAnimationFrame(animate);
+            // predictWebcam(); 
 
             const time = Date.now() * 0.001;
 
@@ -844,11 +844,11 @@
                 // Chỉ xoay sách khi ĐÃ MỞ KHOÁ (MagicLock.isLocked = false)
                 if (!webcamRunning && !TRANSFORM_CONFIG.isZoomedIn && TRANSFORM_CONFIG.autoRotateSpeed > 0) {
                     bookWrapper.rotation.y += TRANSFORM_CONFIG.autoRotateSpeed * 0.01;
-                } else if (!MagicLock.isLocked) {
+                } else if (!window.isLocked) {
                     bookWrapper.rotation.y = THREE.MathUtils.lerp(bookWrapper.rotation.y, handRotY, 0.1);
                 }
                 
-                if(!MagicLock.isLocked) {
+                if(!window.isLocked) {
                     bookWrapper.rotation.x = THREE.MathUtils.lerp(bookWrapper.rotation.x, targetRotX, 0.1);
                 }
                 
@@ -896,6 +896,122 @@
 
             composer.render();
         }
+        const overlayCanvas = document.createElement("canvas");
+overlayCanvas.style.position = "fixed";
+overlayCanvas.style.top = 0;
+overlayCanvas.style.left = 0;
+overlayCanvas.style.width = "100%";
+overlayCanvas.style.height = "100%";
+overlayCanvas.style.zIndex = 9999;
+overlayCanvas.style.touchAction = "none";
+document.body.appendChild(overlayCanvas);
+
+const overlayCtx = overlayCanvas.getContext("2d");
+
+function resizeOverlay() {
+    overlayCanvas.width = window.innerWidth;
+    overlayCanvas.height = window.innerHeight;
+}
+resizeOverlay();
+window.addEventListener("resize", resizeOverlay);
+
+let drawing = false;
+let points = [];
+
+overlayCtx.lineWidth = 6;
+overlayCtx.lineCap = "round";
+overlayCtx.strokeStyle = "#ff4da6";
+overlayCtx.shadowBlur = 25;
+overlayCtx.shadowColor = "#ff66cc";
+
+overlayCanvas.addEventListener("touchstart", () => {
+    drawing = true;
+    points = [];
+});
+
+overlayCanvas.addEventListener("touchmove", (e) => {
+    if (!drawing) return;
+
+    const t = e.touches[0];
+    const x = t.clientX;
+    const y = t.clientY;
+
+    points.push({x,y});
+
+    if(points.length > 1){
+        overlayCtx.beginPath();
+        overlayCtx.moveTo(points[points.length-2].x, points[points.length-2].y);
+        overlayCtx.lineTo(x,y);
+        overlayCtx.stroke();
+    }
+});
+
+overlayCanvas.addEventListener("touchend", () => {
+    drawing = false;
+    detectHeart(points);
+});
+
+function detectHeart(points){
+    if(points.length < 40) return resetOverlay();
+
+    let minX=Infinity,maxX=-Infinity,minY=Infinity,maxY=-Infinity;
+
+    points.forEach(p=>{
+        minX=Math.min(minX,p.x);
+        maxX=Math.max(maxX,p.x);
+        minY=Math.min(minY,p.y);
+        maxY=Math.max(maxY,p.y);
+    });
+
+    const width = maxX-minX;
+    const height = maxY-minY;
+
+    const start = points[0];
+    const end = points[points.length-1];
+    const close = Math.hypot(start.x-end.x,start.y-end.y);
+
+    if(width>100 && height>100 && close<60){
+        unlockEffect();
+    } else {
+        resetOverlay();
+    }
+}
+
+function resetOverlay(){
+    overlayCtx.clearRect(0,0,overlayCanvas.width,overlayCanvas.height);
+}
+
+function unlockEffect(){
+    overlayCtx.clearRect(0,0,overlayCanvas.width,overlayCanvas.height);
+
+    let scale = 1;
+
+    const anim = setInterval(()=>{
+        overlayCtx.clearRect(0,0,overlayCanvas.width,overlayCanvas.height);
+
+        overlayCtx.save();
+        overlayCtx.translate(overlayCanvas.width/2,overlayCanvas.height/2);
+        overlayCtx.scale(scale,scale);
+
+        overlayCtx.beginPath();
+        overlayCtx.moveTo(0,-30);
+        overlayCtx.bezierCurveTo(50,-80,100,20,0,100);
+        overlayCtx.bezierCurveTo(-100,20,-50,-80,0,-30);
+        overlayCtx.fillStyle="#ff3399";
+        overlayCtx.shadowBlur=50;
+        overlayCtx.shadowColor="#ff66cc";
+        overlayCtx.fill();
+        overlayCtx.restore();
+
+        scale+=0.07;
+
+        if(scale>2){
+            clearInterval(anim);
+            overlayCanvas.style.display="none";
+            window.isLocked=false;   // 🔓 MỞ KHÓA SÁCH
+        }
+    },30);
+}
     </script>
 </body>
 </html>
