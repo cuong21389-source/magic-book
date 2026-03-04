@@ -505,14 +505,21 @@ function unlockHeart() {
                 runningMode: "VIDEO", numHands: 1
             });
             const constraints = { video: true };
-            navigator.mediaDevices.getUserMedia(constraints).then((stream) => {
-                video.srcObject = stream;
-                video.addEventListener("loadeddata", () => {
-                    webcamRunning = true;
-                    document.getElementById('loading-screen').style.opacity = 0;
-                    setTimeout(() => document.getElementById('loading-screen').remove(), 1000);
-                });
-            });
+            navigator.mediaDevices.getUserMedia(constraints)
+.then((stream) => {
+    video.srcObject = stream;
+    video.addEventListener("loadeddata", () => {
+        webcamRunning = true;
+        document.getElementById('loading-screen').style.opacity = 0;
+        setTimeout(() => document.getElementById('loading-screen').remove(), 1000);
+    });
+})
+.catch(() => {
+    // Nếu camera lỗi vẫn cho chạy tiếp
+    webcamRunning = false;
+    document.getElementById('loading-screen').style.opacity = 0;
+    setTimeout(() => document.getElementById('loading-screen').remove(), 1000);
+});
         }
 
         let lastVideoTime = -1;
