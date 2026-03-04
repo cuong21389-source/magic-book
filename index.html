@@ -331,6 +331,15 @@ function unlockHeart() {
     heartCanvas.remove();
 
     flipPage();
+        setTimeout(() => {
+        document.addEventListener("click", () => {
+            flipPage();
+        });
+    
+        document.addEventListener("touchstart", () => {
+            flipPage();
+        });
+    }, 500);
 }
         const TRANSFORM_CONFIG = {
             isZoomedIn: false,
