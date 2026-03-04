@@ -262,8 +262,14 @@ heartCanvas.addEventListener("touchmove", (e) => {
     const x = touch.clientX - rect.left;
     const y = touch.clientY - rect.top;
 
-    ctx.lineTo(x, y);
-    ctx.stroke();
+    points.push({x,y});
+
+    hctx.lineWidth = 5;
+    hctx.strokeStyle = "#ffd700";
+    hctx.lineCap = "round";
+
+    hctx.lineTo(x, y);
+    hctx.stroke();
 });
 
 heartCanvas.addEventListener("touchend", () => {
