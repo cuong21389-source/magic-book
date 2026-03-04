@@ -320,20 +320,17 @@ function resetHeart(){
 
 function unlockHeart() {
 
-   console.log("Heart Unlock Success");
+    console.log("Heart Unlock Success");
 
     MagicLock.isLocked = false;
 
-    // Ẩn overlay khóa
     const overlay = document.getElementById("lock-overlay");
     overlay.style.opacity = "0";
     overlay.style.visibility = "hidden";
 
-    // Xoá canvas vẽ tim
     heartCanvas.remove();
 
-    // Mở sách
-    flipPage();
+    flipPage();   // ← dòng quan trọng
 }
         const TRANSFORM_CONFIG = {
             isZoomedIn: false,
