@@ -390,7 +390,9 @@ function unlockHeart() {
 
         async function init() {
             setupScene();
-
+            MagicLock.isLocked = false;
+            flipPage();
+            document.getElementById("lock-overlay").style.display = "none";
             createAmbientBooks(50); // Tạo sách bay nền
             await setupAI();
             animate();
