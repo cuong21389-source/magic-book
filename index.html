@@ -249,7 +249,18 @@ drawGuideHeart();
 
 heartCanvas.addEventListener("touchstart", (e) => {
     e.preventDefault();
+
     drawing = true;
+    points = [];
+
+    const touch = e.touches[0];
+    const rect = heartCanvas.getBoundingClientRect();
+
+    const x = touch.clientX - rect.left;
+    const y = touch.clientY - rect.top;
+
+    hctx.beginPath();
+    hctx.moveTo(x, y);
 });
 
 heartCanvas.addEventListener("touchmove", (e) => {
