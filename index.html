@@ -420,7 +420,13 @@ function unlockHeart() {
             renderer.shadowMap.enabled = true; renderer.shadowMap.type = THREE.SoftShadowMap;
             renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
             document.body.appendChild(renderer.domElement);
+            renderer.domElement.addEventListener("click", () => {
+                flipPage();
+            });
 
+            renderer.domElement.addEventListener("touchstart", () => {
+                flipPage();
+            });
             const renderScene = new RenderPass(scene, camera); 
             
             const bloomPass = new UnrealBloomPass(
