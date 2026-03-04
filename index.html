@@ -320,8 +320,6 @@ function resetHeart(){
 
 function unlockHeart() {
 
-    console.log("Heart Unlock Success");
-
     MagicLock.isLocked = false;
 
     const overlay = document.getElementById("lock-overlay");
@@ -330,7 +328,7 @@ function unlockHeart() {
 
     heartCanvas.remove();
 
-    flipPage();   // ← dòng quan trọng
+    flipPage();
 }
         const TRANSFORM_CONFIG = {
             isZoomedIn: false,
