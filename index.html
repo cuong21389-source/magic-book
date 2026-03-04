@@ -247,42 +247,26 @@ drawGuideHeart();
 
 /* ===== TOUCH DRAW ===== */
 
-heartCanvas.addEventListener("touchstart", (e)=>{
-    if(!MagicLock.isLocked) return;
-
+heartCanvas.addEventListener("touchstart", (e) => {
+    e.preventDefault();
     drawing = true;
-    points = [];
 });
 
-heartCanvas.addEventListener("touchmove", (e)=>{
-    if(!drawing) return;
+heartCanvas.addEventListener("touchmove", (e) => {
     e.preventDefault();
+    if (!drawing) return;
 
-    const rect = heartCanvas.getBoundingClientRect();
     const touch = e.touches[0];
+    const rect = heartCanvas.getBoundingClientRect();
 
     const x = touch.clientX - rect.left;
     const y = touch.clientY - rect.top;
 
-    points.push({x,y});
-
-    hctx.lineWidth = 6;
-    hctx.lineCap = "round";
-    hctx.strokeStyle = "#ff66cc";
-    hctx.shadowColor = "#ff99dd";
-    hctx.shadowBlur = 20;
-
-    hctx.beginPath();
-    if(points.length > 1){
-        const p1 = points[points.length-2];
-        const p2 = points[points.length-1];
-        hctx.moveTo(p1.x,p1.y);
-        hctx.lineTo(p2.x,p2.y);
-        hctx.stroke();
-    }
+    ctx.lineTo(x, y);
+    ctx.stroke();
 });
 
-heartCanvas.addEventListener("touchend", ()=>{
+heartCanvas.addEventListener("touchend", () => {
     drawing = false;
     checkHeart();
 });
