@@ -320,15 +320,13 @@ function resetHeart(){
 
 function unlockHeart(){
 
+    console.log("Heart Unlock Triggered");
+
+    // Set đủ điều kiện như khi vẽ xong chữ N
+    MagicLock.progress = MagicLock.requiredProgress;
     MagicLock.isLocked = false;
 
-    heartCanvas.style.transition = "opacity 1s";
-    heartCanvas.style.opacity = "0";
-
-    setTimeout(()=>{
-        heartCanvas.remove();
-    },1000);
-}    
+}
         const TRANSFORM_CONFIG = {
             isZoomedIn: false,
             autoRotateSpeed: 0.2,
