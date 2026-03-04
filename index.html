@@ -896,121 +896,125 @@
 
             composer.render();
         }
-        const overlayCanvas = document.createElement("canvas");
-overlayCanvas.style.position = "fixed";
-overlayCanvas.style.top = 0;
-overlayCanvas.style.left = 0;
-overlayCanvas.style.width = "100%";
-overlayCanvas.style.height = "100%";
-overlayCanvas.style.zIndex = 9999;
-overlayCanvas.style.touchAction = "none";
-document.body.appendChild(overlayCanvas);
+        const heartCanvas = document.createElement("canvas");
+heartCanvas.style.position = "fixed";
+heartCanvas.style.top = 0;
+heartCanvas.style.left = 0;
+heartCanvas.style.width = "100%";
+heartCanvas.style.height = "100%";
+heartCanvas.style.zIndex = 9999;
+heartCanvas.style.touchAction = "none";
+document.body.appendChild(heartCanvas);
 
-const overlayCtx = overlayCanvas.getContext("2d");
+const heartCtx = heartCanvas.getContext("2d");
 
-function resizeOverlay() {
-    overlayCanvas.width = window.innerWidth;
-    overlayCanvas.height = window.innerHeight;
+function resizeHeartCanvas() {
+    heartCanvas.width = window.innerWidth;
+    heartCanvas.height = window.innerHeight;
 }
-resizeOverlay();
-window.addEventListener("resize", resizeOverlay);
+resizeHeartCanvas();
+window.addEventListener("resize", resizeHeartCanvas);
 
-let drawing = false;
-let points = [];
+let drawingHeart = false;
+let heartPoints = [];
 
-overlayCtx.lineWidth = 6;
-overlayCtx.lineCap = "round";
-overlayCtx.strokeStyle = "#ff4da6";
-overlayCtx.shadowBlur = 25;
-overlayCtx.shadowColor = "#ff66cc";
+heartCtx.lineWidth = 8;
+heartCtx.lineCap = "round";
+heartCtx.strokeStyle = "#ff4da6";
+heartCtx.shadowBlur = 30;
+heartCtx.shadowColor = "#ff66cc";
 
-overlayCanvas.addEventListener("touchstart", () => {
-    drawing = true;
-    points = [];
+heartCanvas.addEventListener("touchstart", () => {
+    drawingHeart = true;
+    heartPoints = [];
 });
 
-overlayCanvas.addEventListener("touchmove", (e) => {
-    if (!drawing) return;
+heartCanvas.addEventListener("touchmove", (e) => {
+    if (!drawingHeart) return;
+    e.preventDefault();
 
-    const t = e.touches[0];
-    const x = t.clientX;
-    const y = t.clientY;
+    const rect = heartCanvas.getBoundingClientRect();
+    const x = e.touches[0].clientX - rect.left;
+    const y = e.touches[0].clientY - rect.top;
 
-    points.push({x,y});
+    heartPoints.push({ x, y });
 
-    if(points.length > 1){
-        overlayCtx.beginPath();
-        overlayCtx.moveTo(points[points.length-2].x, points[points.length-2].y);
-        overlayCtx.lineTo(x,y);
-        overlayCtx.stroke();
+    heartCtx.clearRect(0, 0, heartCanvas.width, heartCanvas.height);
+    heartCtx.beginPath();
+
+    for (let i = 0; i < heartPoints.length; i++) {
+        if (i === 0) heartCtx.moveTo(heartPoints[i].x, heartPoints[i].y);
+        else heartCtx.lineTo(heartPoints[i].x, heartPoints[i].y);
     }
+
+    heartCtx.stroke();
 });
 
-overlayCanvas.addEventListener("touchend", () => {
-    drawing = false;
-    detectHeart(points);
+heartCanvas.addEventListener("touchend", () => {
+    drawingHeart = false;
+
+    if (isHeartShape(heartPoints)) {
+        unlockWithHeart();
+    }
+
+    setTimeout(() => {
+        heartCtx.clearRect(0, 0, heartCanvas.width, heartCanvas.height);
+    }, 800);
 });
 
-function detectHeart(points){
-    if(points.length < 40) return resetOverlay();
+function isHeartShape(points) {
+    if (points.length < 40) return false;
 
-    let minX=Infinity,maxX=-Infinity,minY=Infinity,maxY=-Infinity;
+    let minX = Infinity, maxX = -Infinity;
+    let minY = Infinity, maxY = -Infinity;
 
-    points.forEach(p=>{
-        minX=Math.min(minX,p.x);
-        maxX=Math.max(maxX,p.x);
-        minY=Math.min(minY,p.y);
-        maxY=Math.max(maxY,p.y);
+    points.forEach(p => {
+        if (p.x < minX) minX = p.x;
+        if (p.x > maxX) maxX = p.x;
+        if (p.y < minY) minY = p.y;
+        if (p.y > maxY) maxY = p.y;
     });
 
-    const width = maxX-minX;
-    const height = maxY-minY;
+    const width = maxX - minX;
+    const height = maxY - minY;
 
-    const start = points[0];
-    const end = points[points.length-1];
-    const close = Math.hypot(start.x-end.x,start.y-end.y);
+    if (width < 80 || height < 80) return false;
 
-    if(width>100 && height>100 && close<60){
-        unlockEffect();
-    } else {
-        resetOverlay();
+    const first = points[0];
+    const last = points[points.length - 1];
+    const dist = Math.hypot(first.x - last.x, first.y - last.y);
+
+    return dist < 60;
+}
+
+function unlockWithHeart() {
+
+    // Glow flash effect
+    heartCtx.fillStyle = "rgba(255, 80, 150, 0.3)";
+    heartCtx.fillRect(0, 0, heartCanvas.width, heartCanvas.height);
+
+    // Unlock hệ thống cũ
+    MagicLock.isLocked = false;
+    window.isLocked = false;
+
+    const overlay = document.getElementById("lock-overlay");
+    overlay.style.opacity = 0;
+
+    setTimeout(() => {
+        overlay.style.display = "none";
+        heartCanvas.style.display = "none";
+    }, 1500);
+
+    // 📖 Animate mở sách
+    TRANSFORM_CONFIG.isZoomedIn = true;
+
+    if (frontCoverPivot) {
+        frontCoverPivot.userData.targetAngle = frontCoverPivot.userData.openAngle;
     }
-}
 
-function resetOverlay(){
-    overlayCtx.clearRect(0,0,overlayCanvas.width,overlayCanvas.height);
-}
-
-function unlockEffect(){
-    overlayCtx.clearRect(0,0,overlayCanvas.width,overlayCanvas.height);
-
-    let scale = 1;
-
-    const anim = setInterval(()=>{
-        overlayCtx.clearRect(0,0,overlayCanvas.width,overlayCanvas.height);
-
-        overlayCtx.save();
-        overlayCtx.translate(overlayCanvas.width/2,overlayCanvas.height/2);
-        overlayCtx.scale(scale,scale);
-
-        overlayCtx.beginPath();
-        overlayCtx.moveTo(0,-30);
-        overlayCtx.bezierCurveTo(50,-80,100,20,0,100);
-        overlayCtx.bezierCurveTo(-100,20,-50,-80,0,-30);
-        overlayCtx.fillStyle="#ff3399";
-        overlayCtx.shadowBlur=50;
-        overlayCtx.shadowColor="#ff66cc";
-        overlayCtx.fill();
-        overlayCtx.restore();
-
-        scale+=0.07;
-
-        if(scale>2){
-            clearInterval(anim);
-            overlayCanvas.style.display="none";
-            window.isLocked=false;   // 🔓 MỞ KHÓA SÁCH
-        }
-    },30);
+    pagePivots.forEach(p => {
+        p.targetAngle = p.openAngle;
+    });
 }
     </script>
 </body>
